@@ -1,6 +1,9 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.dokka") version "1.9.10"
+    id("maven-publish")
+    id("signing")
 }
 
 android {
@@ -16,7 +19,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -30,6 +33,25 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+
+//    testFixtures {
+//        enable = true
+//    }
 }
 
 dependencies {
@@ -57,4 +79,59 @@ dependencies {
     // Android Studio Preview support
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+//tasks.dokkaHtmlPartial.configure {
+//    pluginsMapConfiguration.set(
+//        mapOf("org.jetbrains.dokka.base.DokkaBase" to """{ "separateInheritedMembers": true}}""")
+//    )
+//}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.sw.compose-scrollbars"
+            artifactId = "scrollbars"
+            version = "0.1"
+
+            pom {
+                name = "Scrollbars"
+                description = "Scrollbars for Compose LazyLists and Pagers"
+                url = "https://github.com/santiwanti/compose-scrollbars"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://github.com/santiwanti/compose-scrollbars/blob/master/LICENSE"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "santiwanti"
+                        name = "Santi De Tord"
+                        email = "santi.detord@posteo.net"
+                    }
+                }
+                scm {
+                    connection = "scm:git:github.com/santiwanti/compose-scrollbars.git"
+                    developerConnection =
+                        "scm:git:ssh://github.com/santiwanti/compose-scrollbars.git"
+                    url = "https://github.com/santiwanti/compose-scrollbars.git"
+                }
+            }
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+}
+
+signing {
+    useInMemoryPgpKeys(
+        rootProject.ext["signing.keyId"].toString(),
+        rootProject.ext["signing.key"].toString(),
+        rootProject.ext["signing.password"].toString(),
+    )
+
+    sign(publishing.publications)
 }
