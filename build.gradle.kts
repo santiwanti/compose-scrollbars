@@ -20,7 +20,10 @@ if (secretPropsFile?.exists() == true) {
     val p = Properties()
 
     FileInputStream(secretPropsFile).use { p.load(it) }
-    p.forEach { name, value -> ext[name.toString()] = value }
+    p.forEach { name, value ->
+        println("property $name: $value")
+        ext[name.toString()] = value
+    }
 } else {
     ext["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
     ext["signing.key"] = System.getenv("SIGNING_KEY")
@@ -35,6 +38,8 @@ nexusPublishing {
         sonatype {
             nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+
+            stagingProfileId.set(rootProject.ext["sonatypeStagingProfileId"].toString())
 
             username.set(rootProject.ext["ossrhUsername"].toString())
             password.set(rootProject.ext["ossrhPassword"].toString())

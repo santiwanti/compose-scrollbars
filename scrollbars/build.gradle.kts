@@ -128,7 +128,7 @@ publishing {
 
 signing {
     useInMemoryPgpKeys(
-        rootProject.ext["signing.keyId"].toString(),
+//        rootProject.ext["signing.keyId"].toString(),
         rootProject.ext["signing.key"].toString(),
         rootProject.ext["signing.password"].toString(),
     )
